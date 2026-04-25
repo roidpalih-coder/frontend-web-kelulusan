@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getApiBaseUrl } from '../config'
+import api from '../API'
 
 const nis = ref('')
 const errorMsg = ref('')
@@ -13,7 +14,7 @@ const submitForm = async () => {
   isLoading.value = true;
   errorMsg.value = '';
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/siswa/${nis.value}`);
+    const res = await api.get(`/api/siswa/${nis.value}`);
     if (res.ok) {
       const data = await res.json();
       sessionStorage.setItem('studentResult', JSON.stringify(data));
