@@ -35,7 +35,7 @@ const jurusanMap = {
     'OTO': 'Teknik Otomotif',
     'LAS': 'Teknik Las',
     'MESIN': 'Teknik Mesin'
-};
+};  
 
 const getFullJurusanName = (code) => {
     return jurusanMap[code.toUpperCase()] || code;
@@ -51,10 +51,11 @@ const getFullJurusanName = (code) => {
     <!-- The Result Card -->
     <div class="relative z-10 w-full max-w-5xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col">
       
-      <!-- Top Blue Box -->
-      <div class="bg-[#0b5394] px-8 py-8 md:px-12 md:py-10 flex items-center justify-between">
+      <!-- Top Status Box -->
+      <div class="px-8 py-8 md:px-12 md:py-10 flex items-center justify-between" :class="student?.keterangan === 'TidakLulus' ? 'bg-[#c22d2d]' : 'bg-[#0b5394]'">
         <h2 class="text-white text-xl sm:text-2xl md:text-[28px] font-bold leading-[1.4] tracking-wide max-w-[80%] uppercase">
-          <span>SELAMAT! ANDA DINYATAKAN LULUS</span><br />
+          <span v-if="student?.keterangan === 'TidakLulus'">MOHON MAAF! ANDA DINYATAKAN TIDAK LULUS</span>
+          <span v-else>SELAMAT! ANDA DINYATAKAN LULUS</span><br />
           DARI SMK TUNAS HARAPAN PATI<br />
           TAHUN AJARAN 2025/2026.
         </h2>
@@ -74,7 +75,7 @@ const getFullJurusanName = (code) => {
           <!-- Left Info: Personal Data -->
           <div class="flex-grow">
             <h1 class="text-white text-3xl sm:text-4xl md:text-[42px] font-bold mb-8 tracking-wide uppercase">
-              {{ student?.nama_siswa || '......' }}
+              {{ student?.nama || '......' }}
             </h1>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">

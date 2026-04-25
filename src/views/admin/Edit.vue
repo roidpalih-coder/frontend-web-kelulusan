@@ -11,7 +11,8 @@ const form = ref({
    originalNis: '',
    nis: '',
    jurusan: '',
-   nama: ''
+   nama: '',
+   keterangan: ''
 })
 
 const siswaList = ref([])
@@ -25,8 +26,8 @@ const toggleSidebar = () => isSidebarOpen.value = !isSidebarOpen.value
 onMounted(async () => {
     try {
         const res = await api.get('/api/admin/students')
-        if (res.data) {
-            siswaList.value = res.data
+        if (res.data && res.data.data) {
+            siswaList.value = res.data.data
         }
     } catch (e) {
         console.error(e)
@@ -40,8 +41,9 @@ watch(() => form.value.searchSiswa, (newVal) => {
     if (student) {
         form.value.originalNis = student.nis
         form.value.nis = student.nis
-        form.value.nama = student.nama_siswa
+        form.value.nama = student.nama
         form.value.jurusan = student.jurusan || 'TJKT'
+        form.value.keterangan = student.keterangan || 'Lulus'
     }
 })
 
@@ -65,6 +67,7 @@ const submitUpdate = async () => {
         const res = await api.put(`/api/admin/students/${form.value.originalNis}`, {
             nis: form.value.nis,
             nama: form.value.nama,
+            keterangan: form.value.keterangan,
             jurusan: form.value.jurusan
         })
         
@@ -217,7 +220,7 @@ const logout = () => {
                             class="w-full bg-[#242424] border border-white/5 text-gray-200 text-xs font-medium py-3 pl-10 pr-4 rounded-md outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500 shadow-inner"
                         />
                         <datalist id="siswa_records">
-                            <option v-for="s in siswaList" :key="s.nis" :value="s.nis + ' - ' + s.nama_siswa"></option>
+                            <option v-for="s in siswaList" :key="s.nis" :value="s.nis + ' - ' + s.nama"></option>
                         </datalist>
                     </div>
                 </div>
@@ -233,6 +236,16 @@ const logout = () => {
                     <div>
                         <label class="block text-[#777] text-[9px] uppercase font-bold tracking-widest mb-1.5">Nama Lengkap Siswa</label>
                         <input type="text" v-model="form.nama" class="w-full bg-[#242424] text-gray-300 border border-white/5 font-medium py-3 px-4 rounded-md outline-none focus:border-[#4986e7]/50 shadow-inner text-xs" />
+                    </div>
+
+                    <!-- Status Kelulusan -->
+                    <div class="md:col-span-2">
+                        <label class="block text-[#777] text-[9px] uppercase font-bold tracking-widest mb-1.5">Status Kelulusan</label>
+                        <select v-model="form.keterangan" class="w-full bg-[#242424] text-gray-300 border border-white/5 font-medium py-3 px-4 rounded-md outline-none focus:border-[#4986e7]/50 shadow-inner text-xs appearance-none">
+                            <option value="" disabled selected hidden>Pilih Status Kelulusan</option>
+                            <option value="Lulus">Lulus</option>
+                            <option value="TidakLulus">Tidak Lulus</option>
+                        </select>
                     </div>
                 </div>
 

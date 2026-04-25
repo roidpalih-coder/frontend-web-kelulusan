@@ -195,9 +195,9 @@ onMounted(async () => {
         const code = normalizeJurusanCode(s.jurusan);
         return {
           nis: s.nis,
-          name: s.nama_siswa,
-          initial: s.nama_siswa
-            ? s.nama_siswa.substring(0, 2).toUpperCase()
+          name: s.nama,
+          initial: s.nama
+            ? s.nama.substring(0, 2).toUpperCase()
             : "NN",
           jurusanCode: code,
           jurusan: jurusanMap[code] || s.jurusan,

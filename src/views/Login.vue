@@ -14,16 +14,42 @@ const submitForm = async () => {
   isLoading.value = true;
   errorMsg.value = '';
   try {
-    const res = await api.get(`/api/siswa/${nis.value}`);
-    if (res.ok) {
-      const data = await res.json();
-      sessionStorage.setItem('studentResult', JSON.stringify(data));
+    // Cek status pengumuman terlebih dahulu
+    const annRes = await api.get('/api/announcement/status');
+    const annData = annRes.data?.data;
+    
+    if (annData) {
+      if (!annData.is_open) {
+        errorMsg.value = 'Pengumuman belum dibuka oleh administrator.';
+        isLoading.value = false;
+        return;
+      }
+
+      if (annData.countdown) {
+        const targetDate = new Date(annData.countdown);
+        const now = new Date();
+        if (targetDate > now) {
+          errorMsg.value = 'Waktu pengumuman belum tiba. Silakan tunggu hitung mundur selesai.';
+          isLoading.value = false;
+          return;
+        }
+      }
+    }
+    
+    // Jika sudah dibuka dan waktu sudah lewat, lanjutkan cek NIS
+    const res = await api.post('/api/students/check', { nis: nis.value });
+    if (res.data && res.data.success) {
+      sessionStorage.setItem('studentResult', JSON.stringify(res.data.data));
       router.push('/result');
     } else {
       errorMsg.value = 'NIS tidak ditemukan atau tidak valid.';
     }
   } catch (err) {
-    errorMsg.value = 'Terjadi kesalahan jaringan, pastikan server aktif.';
+    if (err.response && err.response.status === 404) {
+      errorMsg.value = 'Data siswa tidak ditemukan.';
+    } else {
+      errorMsg.value = 'Terjadi kesalahan jaringan, pastikan server aktif.';
+    }
   } finally {
     isLoading.value = false;
   }

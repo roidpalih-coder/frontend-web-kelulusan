@@ -22,6 +22,7 @@ const majors = [
 const form = ref({
    nis: '',
    nama: '',
+   keterangan: 'Lulus',
    jurusan: 'TJKT' // default selected
 })
 
@@ -49,6 +50,7 @@ const submitForm = async () => {
         const res = await api.post('/api/admin/students', {
             nis: form.value.nis,
             nama: form.value.nama,
+            keterangan: form.value.keterangan,
             jurusan: form.value.jurusan
         })
         
@@ -181,6 +183,13 @@ const logout = () => {
                         <div>
                             <label class="block text-[#666] text-[9px] uppercase font-bold tracking-widest mb-2">Nama Lengkap</label>
                             <input type="text" v-model="form.nama" placeholder="Masukkan Nama Sesuai Dengan Dokumen Resmi" class="w-full bg-[#1a1a1a] text-gray-300 placeholder-[#444] border border-[#2a2a2a] font-medium py-3.5 px-4 rounded-xl outline-none focus:border-[#4986e7]/50 shadow-inner text-xs" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[#666] text-[9px] uppercase font-bold tracking-widest mb-2">Status Kelulusan</label>
+                            <select v-model="form.keterangan" class="w-full bg-[#1a1a1a] text-gray-300 placeholder-[#444] border border-[#2a2a2a] font-medium py-3.5 px-4 rounded-xl outline-none focus:border-[#4986e7]/50 shadow-inner text-xs appearance-none">
+                                <option value="Lulus">Lulus</option>
+                                <option value="TidakLulus">Tidak Lulus</option>
+                            </select>
                         </div>
                     </div>
                 </div>
