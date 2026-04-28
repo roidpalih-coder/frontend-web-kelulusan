@@ -1,0 +1,23 @@
+name: Container Cleanup
+
+on:
+  schedule:
+    # Every Sunday at 03:00 UTC
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Delete old container versions
+        uses: snok/container-retention-policy@v3.0.0
+        with:
+          image-names: llmbridge
+          cut-off: 1 day ago UTC
+          keep-at-least: 20
+          account: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
