@@ -22,7 +22,7 @@ const handleRegister = async () => {
     isSubmitting.value = true
     errorMsg.value = ''
     try {
-        const res = await fetch(`${getApiBaseUrl()}/api/admin/register`, {
+        const res = await api.post(`/api/admin/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username.value, password: password.value })

@@ -78,9 +78,7 @@ const handleFileUpload = async (event) => {
       endpoint,
       formData.get("file"),
     );
-    alert(
-      "Terjadi kesalahan saat mengunggah file. Pastikan server backend Anda berjalan pada port 3000.",
-    );
+    alert(error, "Terjadi kesalahan saat mengunggah file. Pastikan server backend Anda berjalan pada port 3000.",);
   } finally {
     isUploading.value = false;
     if (fileInput.value) fileInput.value.value = "";
