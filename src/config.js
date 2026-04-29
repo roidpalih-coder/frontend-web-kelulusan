@@ -1,5 +1,5 @@
 export const getApiBaseUrl = () => {
-    return 'http://api-kelulusan.tjktsmkth.my.id';
+    return 'https://api-kelulusan.tjktsmkth.my.id';
 };
 
  
