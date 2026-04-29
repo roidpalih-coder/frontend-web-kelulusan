@@ -25,7 +25,13 @@ const isSavingAnnouncement = ref(false);
 const saveAnnouncement = async () => {
   isSavingAnnouncement.value = true;
   try {
-    await api.put("/api/admin/announcement", announcement.value);
+    const payload = {
+      ...announcement.value,
+      countdown: announcement.value.countdown
+        ? announcement.value.countdown.replace('T', ' ')
+        : null
+    };
+    await api.put("/api/admin/announcement", payload);
     alert("Pengaturan pengumuman berhasil disimpan!");
   } catch (e) {
     console.error(e);

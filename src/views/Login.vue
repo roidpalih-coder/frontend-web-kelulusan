@@ -26,7 +26,9 @@ const submitForm = async () => {
       }
 
       if (annData.countdown) {
-        const targetDate = new Date(annData.countdown);
+        const targetDate = new Date(
+          annData.countdown.replace(' ', 'T')
+        );
         const now = new Date();
         if (targetDate > now) {
           errorMsg.value = 'Waktu pengumuman belum tiba. Silakan tunggu hitung mundur selesai.';

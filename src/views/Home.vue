@@ -17,7 +17,8 @@ const fetchAnnouncementStatus = async () => {
     try {
         const response = await api.get('/api/announcement/status')
         if (response.data && response.data.data && response.data.data.countdown) {
-            targetDate.value = new Date(response.data.data.countdown)
+            const rawDate = response.data.data.countdown
+            targetDate.value = new Date(rawDate.replace(' ', 'T'))
             const formatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             formattedTargetDate.value = formatter.format(targetDate.value).replace(/\./g, ':').toUpperCase();
         }
@@ -65,7 +66,7 @@ onUnmounted(() => {
   if (timer) clearInterval(timer)
 })
 </script>
-
+x``
 <template>
   <!-- Background Container -->
   <div class="relative min-h-screen w-full bg-cover bg-center bg-no-repeat font-sans bg-[url('/images/Mobile.jpeg')] md:bg-[url('/images/Desktop.jpeg')]">
