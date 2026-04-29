@@ -60,8 +60,15 @@ const submitForm = async () => {
             alert("Gagal: Terjadi kesalahan")
         }
     } catch (e) {
-        console.error(e)
-        alert("Gagal menghubungi server. Pastikan backend menyala.")
+        console.error("ERROR:", e)
+
+        if (e.response) {
+            console.log("RESPONSE:", e.response.data);
+            alert(e.response.data.message || "Terjadi Error")
+        } else {
+            alert("Backend tidak merespon")
+        }
+        // alert("Gagal menghubungi server. Pastikan backend menyala.")
     } finally {
         isSubmitting.value = false
     }
