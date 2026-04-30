@@ -1,6 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../API/index.js'
+
+const router = useRouter()
+const isAdmin = ref(false)
 
 const days = ref('00')
 const hours = ref('00')
@@ -13,14 +17,28 @@ const formattedTargetDate = ref('Menunggu Tanggal...')
 
 let timer = null
 
+let targetTime = null;
+let serverTime = null;
+let startClient = null;
+let diff = 0;
+
 const fetchAnnouncementStatus = async () => {
     try {
         const response = await api.get('/api/announcement/status')
-        if (response.data && response.data.data && response.data.data.countdown) {
-            const rawDate = response.data.data.countdown
-            targetDate.value = new Date(rawDate.replace(' ', 'T'))
+        if (response.data && response.data.data) {
+            const data = response.data.data;
+            
+            // Fallback ke tanggal tertentu jika backend mengembalikan null
+            const rawDate = data.countdown || '2026-05-15 08:00:00';
+            targetTime = new Date(rawDate.replace(' ', 'T'));
+            
             const formatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            formattedTargetDate.value = formatter.format(targetDate.value).replace(/\./g, ':').toUpperCase();
+            formattedTargetDate.value = formatter.format(targetTime).replace(/\./g, ':').toUpperCase();
+
+            // Fallback jika data.server_time null (walaupun harusnya ada)
+            serverTime = data.server_time ? new Date(data.server_time) : new Date();
+            diff = targetTime - serverTime;
+            startClient = new Date();
         }
     } catch(e) {
         console.error(e)
@@ -28,24 +46,28 @@ const fetchAnnouncementStatus = async () => {
 }
 
 const updateCountdown = () => {
-  if (!targetDate.value) return;
+  if (!targetTime || !startClient) return;
 
-  const now = new Date()
-  const diff = targetDate.value - now
+  const nowClient = new Date();
+  const elapsed = nowClient - startClient;
+  const remaining = diff - elapsed;
 
-  if (diff <= 0) {
+  if (remaining <= 0) {
     days.value = '00'
     hours.value = '00'
     minutes.value = '00'
     seconds.value = '00'
     if (timer) clearInterval(timer)
+    if (!isAdmin.value) {
+      router.push('/login')
+    }
     return
   }
 
-  const d = Math.floor(diff / (1000 * 60 * 60 * 24))
-  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  const s = Math.floor((diff % (1000 * 60)) / 1000)
+  const d = Math.floor(remaining / (1000 * 60 * 60 * 24))
+  const h = Math.floor((remaining / (1000 * 60 * 60)) % 24)
+  const m = Math.floor((remaining / (1000 * 60)) % 60)
+  const s = Math.floor((remaining / 1000) % 60)
 
   days.value = String(d).padStart(2, '0')
   hours.value = String(h).padStart(2, '0')
@@ -53,20 +75,20 @@ const updateCountdown = () => {
   seconds.value = String(s).padStart(2, '0')
 }
 
-const isAdmin = ref(false)
-
 onMounted(async () => {
+  isAdmin.value = localStorage.getItem('isAdmin') === 'true'
   await fetchAnnouncementStatus();
   updateCountdown()
-  timer = setInterval(updateCountdown, 1000)
-  isAdmin.value = localStorage.getItem('isAdmin') === 'true'
+  if (targetTime && diff > 0) {
+      timer = setInterval(updateCountdown, 1000)
+  }
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
 })
 </script>
-x``
+
 <template>
   <!-- Background Container -->
   <div class="relative min-h-screen w-full bg-cover bg-center bg-no-repeat font-sans bg-[url('/images/Mobile.jpeg')] md:bg-[url('/images/Desktop.jpeg')]">

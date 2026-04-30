@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getApiBaseUrl } from '../config'
 import api from '../API'
@@ -9,6 +9,22 @@ const errorMsg = ref('')
 const isLoading = ref(false)
 const router = useRouter()
 
+onMounted(async () => {
+  try {
+    const annRes = await api.get('/api/announcement/status');
+    const annData = annRes.data?.data;
+    if (annData && annData.countdown) {
+      const targetDate = new Date(annData.countdown.replace(' ', 'T'));
+      const serverTime = annData.server_time ? new Date(annData.server_time) : new Date();
+      if (targetDate > serverTime) {
+        router.push('/home');
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 const submitForm = async () => {
   if (!nis.value) return;
   isLoading.value = true;
@@ -17,26 +33,17 @@ const submitForm = async () => {
     // Cek status pengumuman terlebih dahulu
     const annRes = await api.get('/api/announcement/status');
     const annData = annRes.data?.data;
-    
-    if (annData) {
-      if (!annData.is_open) {
-        errorMsg.value = 'Pengumuman belum dibuka oleh administrator.';
+
+    // Fallback date yang sama dengan di Home.vue
+    const rawDate = (annData && annData.countdown) ? annData.countdown : '2026-04-15 08:00:00';
+      const targetDate = new Date(rawDate.replace(' ', 'T'));
+      const now = new Date();
+      
+      if (targetDate > now) {
+        errorMsg.value = 'Waktu pengumuman belum tiba. Silakan tunggu hitung mundur selesai.';
         isLoading.value = false;
         return;
       }
-
-      if (annData.countdown) {
-        const targetDate = new Date(
-          annData.countdown.replace(' ', 'T')
-        );
-        const now = new Date();
-        if (targetDate > now) {
-          errorMsg.value = 'Waktu pengumuman belum tiba. Silakan tunggu hitung mundur selesai.';
-          isLoading.value = false;
-          return;
-        }
-      }
-    }
     
     // Jika sudah dibuka dan waktu sudah lewat, lanjutkan cek NIS
     const res = await api.post('/api/students/check', { nis: nis.value });

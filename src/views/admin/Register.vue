@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getApiBaseUrl } from '../../config'
+import api from '../../API/index.js'
 
 const username = ref('')
 const password = ref('')
@@ -10,31 +11,63 @@ const isSubmitting = ref(false)
 const errorMsg = ref('')
 const router = useRouter()
 
+
 const handleRegister = async () => {
     if (!username.value || !password.value || !confirmPassword.value) {
         errorMsg.value = 'Mohon isi semua field'
         return
     }
+
     if (password.value !== confirmPassword.value) {
         errorMsg.value = 'Konfirmasi password tidak cocok'
         return
     }
+
     isSubmitting.value = true
     errorMsg.value = ''
+
     try {
-        const res = await api.post(`/api/admin/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username.value, password: password.value })
+        const res = await api.post('/api/admin/register', {
+            username: username.value,
+            password: password.value
         })
-        if (res.ok) {
-            router.push('/admin/login')
-        } else {
-            const data = await res.json()
-            errorMsg.value = data.error || 'Gagal mendaftar'
-        }
+
+        console.log('RESPONSE:', res.data)
+
+        router.push('/admin/login')
+
     } catch (e) {
-        errorMsg.value = 'Gagal menghubungi server database'
+
+        console.log('ERROR FULL:', e)
+
+        // kalau backend ngirim response error
+        if (e.response) {
+            console.log('DATA:', e.response.data)
+            console.log('STATUS:', e.response.status)
+
+            errorMsg.value =
+                e.response.data.message ||
+                e.response.data.error ||
+                'Terjadi kesalahan'
+
+        }
+        // kalau request tidak sampai backend
+        else if (e.request) {
+
+            console.log('REQUEST:', e.request)
+
+            errorMsg.value =
+                'Request terkirim tapi tidak ada response dari server'
+
+        }
+        // error lain
+        else {
+
+            console.log('MESSAGE:', e.message)
+
+            errorMsg.value = e.message
+        }
+
     } finally {
         isSubmitting.value = false
     }

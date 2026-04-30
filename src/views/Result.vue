@@ -17,8 +17,8 @@ onMounted(async () => {
 
   try {
       const response = await api.get('/api/announcement/status')
-      if (response.data && response.data.data && response.data.data.information) {
-          announcementMsg.value = response.data.data.information
+      if (response.data && response.data.data) {
+          announcementMsg.value = response.data.data.information || 'Tetap semangat dan raihlah cita-citamu setinggi langit! Ini adalah awal dari perjalananmu menuju kesuksesan.';
       }
   } catch(e) {
       console.error(e)
