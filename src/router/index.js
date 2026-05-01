@@ -12,7 +12,7 @@ import AdminImport from '../views/admin/Import.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/home'
   },
   {
     path: '/login',
